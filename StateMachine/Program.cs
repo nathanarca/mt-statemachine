@@ -1,9 +1,7 @@
-﻿using Masstransit.StateMachine.Database;
-using Masstransit.StateMachine.Sagas;
+﻿using Masstransit.StateMachine.Sagas;
 using Masstransit.StateMachine.States;
 using Masstransit.StateMachine.StatesMachines;
 using MassTransit;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Topshelf;
@@ -38,11 +36,6 @@ namespace Masstransit.StateMachine
            .AddJsonFile("appsettings.json", false)
            .Build();
 
-            services.AddDbContext<EventosDbContext>(options =>
-            {
-                options.UseSqlServer(configuration.GetConnectionString("SqlServer"));
-            });
-
             services.AddTransient<SagaStateMachineInstance, Mensagem>();
 
             services.AddMassTransit(massTransit =>
@@ -50,12 +43,6 @@ namespace Masstransit.StateMachine
                 massTransit.AddStateObserver<Mensagem, MensagemStateObserver>();
 
                 massTransit.AddSagaStateMachines(typeof(StateCriarPedido).Assembly);
-
-                //massTransit.AddSagaRepository<Mensagem>()
-                //    .EntityFrameworkRepository(r =>
-                //    {
-                //        r.ExistingDbContext<EventosDbContext>();
-                //    });
 
                 massTransit.SetInMemorySagaRepositoryProvider();
 
@@ -71,9 +58,15 @@ namespace Masstransit.StateMachine
 
                     configurator.ReceiveEndpoint("eventos", configureEndPoint =>
                     {
+                        configureEndPoint.UseInMemoryOutbox();
+
                         configureEndPoint.StateMachineSaga(context.GetService<StateCriarPedido>(), context);
                         configureEndPoint.StateMachineSaga(context.GetService<StatePedidoCriado>(), context);
+
+                        configureEndPoint.ConfigureSaga<Mensagem>(context);
                     });
+
+                    configurator.ConfigureEndpoints(context);
 
                 });
 
