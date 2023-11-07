@@ -12,7 +12,7 @@ namespace Masstransit.StateMachine.StatesMachines
 
             var status = new StateAlterado(context.Saga.Contrato, context.Saga.DataHora, ToStatusId(previousState), ToStatusId(currentState));
 
-            await context.Send(Configuracao.FilaLogger, status);
+            await context.Send(Configuracao.UriLogger, status);
         }
 
         private static int ToStatusId(State state)

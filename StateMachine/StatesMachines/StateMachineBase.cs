@@ -23,7 +23,7 @@ namespace Masstransit.StateMachine.States
                    {
                        context.Saga.SetEventoRecebido(context.Message);
 
-                       await context.Send(Configuracao.FilaOrquestrador, context.Message);
+                       await context.Send(Configuracao.UriOrquestrador, context.Message);
 
                        await context.TransitionToState(Processando);
                    }));
@@ -35,7 +35,7 @@ namespace Masstransit.StateMachine.States
             During(Aguardando,
 
                 When(FalhaRecebida)
-                    .ThenAsync(n => n.Send(Configuracao.FilaLogger, n.Message))
+                    .ThenAsync(n => n.Send(Configuracao.UriLogger, n.Message))
                     .TransitionTo(Falha),
 
                 When(EventoRecebido)
@@ -44,11 +44,11 @@ namespace Masstransit.StateMachine.States
             During(Processando,
 
                 When(FalhaRecebida)
-                    .ThenAsync(n => n.Send(Configuracao.FilaLogger, n.Message))
+                    .ThenAsync(n => n.Send(Configuracao.UriLogger, n.Message))
                     .TransitionTo(Falha),
 
                   When(SucessoRecebido)
-                    .ThenAsync(n => n.Send(Configuracao.FilaLogger, n.Message))
+                    .ThenAsync(n => n.Send(Configuracao.UriLogger, n.Message))
                     .TransitionTo(Sucesso),
 
                 When(RetentarRecebido)
@@ -57,11 +57,11 @@ namespace Masstransit.StateMachine.States
 
             During(Falha,
                  When(FalhaRecebida)
-                    .ThenAsync(n => n.Send(Configuracao.FilaLogger, n.Message))
+                    .ThenAsync(n => n.Send(Configuracao.UriLogger, n.Message))
                     .TransitionTo(Falha),
 
                 When(RetentarRecebido)
-                    .Then(context => context.Send(Configuracao.FilaModulo, context.Message.Evento))
+                    .Then(context => context.Send(Configuracao.UriModulo, context.Message.Evento))
                     .TransitionTo(Processando));
 
         }
@@ -74,13 +74,13 @@ namespace Masstransit.StateMachine.States
             {
                 var atraso = TimeSpan.FromSeconds(5);
 
-                await context.Send(Configuracao.FilaLogger, context.Message);
+                await context.Send(Configuracao.UriLogger, context.Message);
 
-                await context.ScheduleSend(Configuracao.FilaModulo, atraso, context.Message.Evento);
+                await context.ScheduleSend(Configuracao.UriModulo, atraso, context.Message.Evento);
             }
             else
             {
-                await context.Send<IErro<TEvento>>(Configuracao.FilaSaga, new Falha<TEvento>(context.Message));
+                await context.Send<IErro<TEvento>>(Configuracao.UriSaga, new Falha<TEvento>(context.Message));
             }
 
         }
