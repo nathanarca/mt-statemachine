@@ -56,14 +56,13 @@ namespace Masstransit.StateMachine
 
                     configurator.UseNewtonsoftJsonSerializer();
 
-                    configurator.ReceiveEndpoint("eventos", configureEndPoint =>
+                    configurator.ReceiveEndpoint(Configuracao.FilaSaga, configureEndPoint =>
                     {
                         configureEndPoint.UseInMemoryOutbox();
 
                         configureEndPoint.StateMachineSaga(context.GetService<StateCriarPedido>(), context);
                         configureEndPoint.StateMachineSaga(context.GetService<StatePedidoCriado>(), context);
 
-                        configureEndPoint.ConfigureSaga<Mensagem>(context);
                     });
 
                     configurator.ConfigureEndpoints(context);
