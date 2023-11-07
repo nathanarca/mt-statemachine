@@ -36,8 +36,6 @@ namespace Masstransit.StateMachine
            .AddJsonFile("appsettings.json", false)
            .Build();
 
-            services.AddTransient<SagaStateMachineInstance, Mensagem>();
-
             services.AddMassTransit(massTransit =>
             {
                 massTransit.AddStateObserver<Mensagem, MensagemStateObserver>();
@@ -61,10 +59,6 @@ namespace Masstransit.StateMachine
                         configureEndPoint.UseInMemoryOutbox();
 
                         configureEndPoint.ConfigureSaga<Mensagem>(context);
-
-                        configureEndPoint.StateMachineSaga(context.GetService<StateCriarPedido>(), context);
-                        configureEndPoint.StateMachineSaga(context.GetService<StatePedidoCriado>(), context);
-
                     });
 
                     configurator.ConfigureEndpoints(context);
