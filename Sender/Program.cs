@@ -29,6 +29,12 @@ namespace Masstransit.StateMachine.Sender
 
             bus.Publish<ICriarPedido>(criarPedido).Wait();
 
+            Task.Delay(1000).Wait();
+
+            var sucesso = new Sucesso<ICriarPedido>(criarPedido);
+
+            bus.Publish<ISucesso<ICriarPedido>>(sucesso).Wait();
+        
         }
 
         private static void ConfigureAllServices(ServiceCollection services)
