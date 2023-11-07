@@ -60,6 +60,8 @@ namespace Masstransit.StateMachine
                     {
                         configureEndPoint.UseInMemoryOutbox();
 
+                        configureEndPoint.ConfigureSaga<Mensagem>(context);
+
                         configureEndPoint.StateMachineSaga(context.GetService<StateCriarPedido>(), context);
                         configureEndPoint.StateMachineSaga(context.GetService<StatePedidoCriado>(), context);
 
