@@ -1,12 +1,17 @@
 ﻿namespace Masstransit.StateMachine.Contracts.Interfaces
 {
-    public interface ICriarPedido : IPedido
+    public interface IPedidoCriar : IPedido
     {
     }
 
     public interface IPedidoCriado : IPedido
     {
        
+    }
+
+    public interface IPedidoRemovido : IPedido
+    {
+
     }
 
     public interface IPedido : IMensagem

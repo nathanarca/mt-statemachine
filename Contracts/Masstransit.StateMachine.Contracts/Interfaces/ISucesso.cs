@@ -1,7 +1,7 @@
 ﻿namespace Masstransit.StateMachine.Contracts.Interfaces
 {
-    public interface ISucesso<out TEvento> where TEvento : IMensagem
+    public interface ISucesso<TMensagem> where TMensagem : IMensagem
     {
-        TEvento Evento { get; }
+        TMensagem Evento { get; }
     }
 }

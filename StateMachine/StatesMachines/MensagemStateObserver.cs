@@ -4,13 +4,13 @@ using MassTransit;
 
 namespace Masstransit.StateMachine.StatesMachines
 {
-    internal class MensagemStateObserver : IStateObserver<Mensagem>
+    internal class MensagemStateObserver<TEvento> : IStateObserver<Mensagem<TEvento>>
     {
-        public async Task StateChanged(BehaviorContext<Mensagem> context, State currentState, State previousState)
+        public async Task StateChanged(BehaviorContext<Mensagem<TEvento>> context, State currentState, State previousState)
         {
             if (previousState == null || currentState == null) return;
 
-            var status = new StateAlterado(context.Saga.Contrato, context.Saga.DataHora, ToStatusId(previousState), ToStatusId(currentState));
+            var status = new StateAlterado(context.Saga.TipoMensagem, context.Saga.DataHora, ToStatusId(previousState), ToStatusId(currentState));
 
             await context.Send(Configuracao.UriLogger, status);
         }

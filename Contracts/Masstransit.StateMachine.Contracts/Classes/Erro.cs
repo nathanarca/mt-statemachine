@@ -2,9 +2,9 @@
 
 namespace Masstransit.StateMachine.Contratos.Classes
 {
-    public class Falha<TEvento> : IErro<TEvento> where TEvento : IMensagem
+    public class Erro<TEvento> : IErro<TEvento> where TEvento : IMensagem
     {
-        public Falha(IRetentar<TEvento> message)
+        public Erro(IRetentar<TEvento> message)
         {
             TimeStamp = DateTime.Now;
             this.Evento = message.Evento;

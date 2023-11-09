@@ -1,12 +1,13 @@
-﻿using Masstransit.StateMachine.Contracts.Interfaces;
+﻿using Masstransit.StateMachine.Contracts.Enumns;
+using Masstransit.StateMachine.Contracts.Interfaces;
 
 namespace Masstransit.StateMachine.Contracts.Classes
 {
     public class StateAlterado : IStateAlterado
     {
-        public StateAlterado(string? contrato, DateTime dataHora, int previousState, int currentState)
+        public StateAlterado(int? tipoMensagem, DateTime dataHora, int previousState, int currentState)
         {
-            EventType = contrato;
+            EventType = tipoMensagem;
             TimeStamp = dataHora;
             PreviousState = previousState;
             CurrentState = currentState;
@@ -16,7 +17,7 @@ namespace Masstransit.StateMachine.Contracts.Classes
 
         public int CurrentState { get; set; }
 
-        public string? EventType { get; set; }
+        public int? EventType { get; set; }
 
         public DateTime TimeStamp { get; set; }
     }

@@ -4,7 +4,7 @@
     {
         int? PreviousState { get; }
         int CurrentState { get; }
-        string? EventType { get; }
+        int? EventType { get; }
         DateTime TimeStamp { get; }
     }
 }

@@ -1,10 +1,5 @@
 ﻿using Masstransit.StateMachine.Contracts.Interfaces;
-using Masstransit.StateMachine.Database;
-using Masstransit.StateMachine.Sagas;
-using Masstransit.StateMachine.States;
-using Masstransit.StateMachine.StatesMachines;
 using MassTransit;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Topshelf;
@@ -24,7 +19,7 @@ namespace Masstransit.StateMachine
 
             HostFactory.Run(x =>
             {
-                x.SetServiceName("StateMachine");
+                x.SetServiceName("ConsumerPedido");
 
                 x.Service<ServiceConnector>(s =>
                 {
@@ -43,56 +38,42 @@ namespace Masstransit.StateMachine
 
             services.AddMassTransit(massTransit =>
             {
-                massTransit.AddStateMachineWithObserverAndSaga<StateCriarPedido, IPedidoCriar>(configuration);
-                massTransit.AddStateMachineWithObserverAndSaga<StatePedidoCriado, IPedidoCriado>(configuration);
-                massTransit.AddStateMachineWithObserverAndSaga<StatePedidoRemovido, IPedidoRemovido>(configuration);
-
-                massTransit.SetEntityFrameworkSagaRepositoryProvider(options =>
-                {
-                    options.ConcurrencyMode = ConcurrencyMode.Optimistic;
-
-                    options.AddDbContext<DbContext, EventosDbContext>((provider, builder) =>
-                    {
-                        builder.UseSqlServer(configuration.GetConnectionString("SqlServer"));
-                    });
-                });
+                massTransit.AddConsumer<ConsumerPedido<IPedidoCriado>>();
+                massTransit.AddConsumer<ConsumerPedido<IPedidoCriar>>();
+                massTransit.AddConsumer<ConsumerPedido<IPedidoRemovido>>();
 
                 massTransit.UsingAzureServiceBus((context, configurator) =>
                 {
                     configurator.Host(configuration["ServiceBus:ConnectionString"]);
 
-                    configurator.UseServiceBusMessageScheduler();
-
                     configurator.UseNewtonsoftJsonDeserializer();
 
                     configurator.UseNewtonsoftJsonSerializer();
 
-                    configurator.ReceiveEndpoint(Configuracao.FilaSaga, configureEndPoint =>
+                    configurator.ReceiveEndpoint("pedido_criado", configureEndPoint =>
                     {
-                        configureEndPoint.UseInMemoryOutbox();
-
-                        configureEndPoint.ConfigureSaga<Mensagem<IPedidoCriar>>(context);
-                        configureEndPoint.ConfigureSaga<Mensagem<IPedidoCriado>>(context);
-                        configureEndPoint.ConfigureSaga<Mensagem<IPedidoRemovido>>(context);
+                        configureEndPoint.ConfigureConsumer<ConsumerPedido<IPedidoCriado>>(context);
                     });
+
+                    configurator.ReceiveEndpoint("pedido_criar", configureEndPoint =>
+                    {
+                        configureEndPoint.ConfigureConsumer<ConsumerPedido<IPedidoCriar>>(context);
+                    });
+
+                    configurator.ReceiveEndpoint("pedido_removido", configureEndPoint =>
+                    {
+                        configureEndPoint.ConfigureConsumer<ConsumerPedido<IPedidoRemovido>>(context);
+                    });
+
+                    configurator.ConfigureEndpoints(context);
+
+                    configurator.UseServiceBusMessageScheduler();
                 });
 
             });
         }
 
 
-    }
-
-    public static class MassTransitLocalExtension
-    {
-        public static void AddStateMachineWithObserverAndSaga<TStateMachine, TEvento>(this IBusRegistrationConfigurator services, IConfiguration configuration)
-           where TStateMachine : StateMachineBase<TEvento>
-           where TEvento : class, IMensagem
-        {
-            services.AddStateObserver<Mensagem<TEvento>, MensagemStateObserver<TEvento>>();
-
-            services.AddSagaStateMachine<TStateMachine, Mensagem<TEvento>>();
-        }
     }
 
     public class ServiceConnector

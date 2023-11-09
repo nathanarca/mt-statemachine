@@ -9,7 +9,7 @@ namespace Masstransit.StateMachine.Sender
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var services = new ServiceCollection();
 
@@ -19,22 +19,17 @@ namespace Masstransit.StateMachine.Sender
 
             var criarPedido = new CriarPedido()
             {
-                Identificador = System.Guid.NewGuid(),
+                Identificador = new Guid("09BE0BDC-43CD-4AC6-8DB8-F6BB3F2D4569"),
                 Numero = 1,
                 TimeStamp = System.DateTime.Now,
                 Valor = 100
             };
 
-            var bus = provider.GetRequiredService<IBusControl>();
+            var message = new Sucesso<ICriarPedido>(criarPedido);
 
-            bus.Publish<ICriarPedido>(criarPedido).Wait();
+            var busControl = provider.GetRequiredService<IBusControl>();
 
-            Task.Delay(1000).Wait();
-
-            var sucesso = new Sucesso<ICriarPedido>(criarPedido);
-
-            bus.Publish<ISucesso<ICriarPedido>>(sucesso).Wait();
-        
+            await busControl.Publish<ISucesso<ICriarPedido>>(message);
         }
 
         private static void ConfigureAllServices(ServiceCollection services)

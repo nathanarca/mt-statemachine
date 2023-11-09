@@ -12,25 +12,24 @@ namespace Masstransit.StateMachine.Contratos.Classes
     }
 
 
-    public class CriarPedido : Pedido, ICriarPedido
+    public class PedidoCriar : Pedido, IPedidoCriar
     {
     }
 
-    public class PedidoCriado: Pedido, IPedidoCriado
+    public class PedidoCriado : Pedido, IPedidoCriado
     {
     }
 
-    public class Sucesso<TEvento> : ISucesso<TEvento> where TEvento : class, IMensagem
+    public class PedidoRemovido : Pedido, IPedidoRemovido
+    {
+    }
+
+    public class Sucesso<TEvento> : ISucesso<TEvento> where TEvento : IMensagem
     {
         public Sucesso(TEvento evento)
         {
             Evento = evento;
-            Identificador = evento.Identificador;
-            TimeStamp = evento.TimeStamp;
         }
-
-        public Guid Identificador { get; set; }
-        public DateTime TimeStamp { get; set; }
         public TEvento Evento { get; set; }
     }
 }

@@ -7,5 +7,4 @@
         DateTime TimeStamp { get; }
     }
 
-
 }
